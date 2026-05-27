@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import { motion } from "framer-motion";
 import { Mail, MapPin, Phone, Globe } from "lucide-react";
 
@@ -18,20 +19,30 @@ function Contact() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData);
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/inquiries",
+        formData
+      );
 
-    alert("Inquiry Submitted Successfully!");
+      if (response.data.success) {
+        alert("Inquiry Submitted Successfully!");
 
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      service: "",
-      message: "",
-    });
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          service: "",
+          message: "",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (

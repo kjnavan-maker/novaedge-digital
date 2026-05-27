@@ -1,13 +1,52 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
 import AdminLayout from "../layouts/AdminLayout";
 import { Users, MessageSquare, Briefcase, CheckCircle } from "lucide-react";
 
 function AdminDashboard() {
+  const [inquiries, setInquiries] = useState([]);
+  const [customers, setCustomers] = useState([]);
+
+  const fetchInquiries = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/inquiries");
+
+      if (response.data.success) {
+        setInquiries(response.data.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchCustomers = async () => {
+  try {
+    const response = await axios.get("http://localhost:5000/api/customers");
+
+    if (response.data.success) {
+      setCustomers(response.data.data);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+  useEffect(() => {
+    fetchInquiries();
+    fetchCustomers();
+  }, []);
+
+  const totalInquiries = inquiries.length;
+  const newInquiries = inquiries.filter((item) => item.status === "New").length;
+  const converted = inquiries.filter((item) => item.status === "Converted").length;
+  const closed = inquiries.filter((item) => item.status === "Closed").length;
+
   const stats = [
-    { title: "Total Customers", value: "0", icon: Users },
-    { title: "New Inquiries", value: "0", icon: MessageSquare },
-    { title: "Active Projects", value: "0", icon: Briefcase },
-    { title: "Completed", value: "0", icon: CheckCircle },
-  ];
+  { title: "Total Customers", value: customers.length, icon: Users },
+  { title: "New Inquiries", value: newInquiries, icon: MessageSquare },
+  { title: "Converted Leads", value: converted, icon: Briefcase },
+  { title: "Closed Inquiries", value: closed, icon: CheckCircle },
+];
 
   return (
     <AdminLayout>
@@ -39,6 +78,32 @@ function AdminDashboard() {
             </div>
           );
         })}
+      </div>
+
+      <div className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6">
+        <h2 className="text-2xl font-bold mb-5">Recent Inquiries</h2>
+
+        {inquiries.length === 0 ? (
+          <p className="text-white/50">No recent inquiries.</p>
+        ) : (
+          <div className="space-y-4">
+            {inquiries.slice(0, 5).map((item) => (
+              <div
+                key={item._id}
+                className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-white/10 pb-4"
+              >
+                <div>
+                  <h3 className="font-bold">{item.name}</h3>
+                  <p className="text-white/45">{item.service}</p>
+                </div>
+
+                <span className="px-3 py-1 rounded-full bg-cyan-300/10 text-cyan-300 border border-cyan-300/20 text-sm w-fit">
+                  {item.status || "New"}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </AdminLayout>
   );
