@@ -20,13 +20,15 @@ function AdminLogin() {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    if (loginData.email === "" || loginData.password === "") {
-      alert("Please enter email and password");
-      return;
+    if (
+      loginData.email === "admin@novaedge.com" &&
+      loginData.password === "NovaEdge@2026Secure"
+    ) {
+      localStorage.setItem("novaedgeAdmin", "true");
+      navigate("/admin/dashboard");
+    } else {
+      alert("Invalid admin email or password");
     }
-
-    alert("Login Successful");
-    navigate("/admin/dashboard");
   };
 
   return (
@@ -76,6 +78,10 @@ function AdminLogin() {
             Login
           </button>
         </form>
+
+        <p className="mt-6 text-center text-white/40 text-sm">
+          Email: admin@novaedge.com | Password: admin123
+        </p>
       </div>
     </div>
   );

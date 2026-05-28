@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -9,12 +10,20 @@ import {
 } from "lucide-react";
 
 function AdminLayout({ children }) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const handleLogout = () => {
-  alert("Logged out successfully");
-  navigate("/admin");
-};
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("novaedgeAdmin");
+
+    if (isLoggedIn !== "true") {
+      navigate("/admin");
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("novaedgeAdmin");
+    navigate("/admin");
+  };
 
   const menu = [
     { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
@@ -49,9 +58,9 @@ const handleLogout = () => {
         </nav>
 
         <button
-  onClick={handleLogout}
-  className="mt-10 flex items-center gap-3 px-4 py-3 rounded-2xl text-red-300 hover:bg-red-500/10 transition"
->
+          onClick={handleLogout}
+          className="mt-10 flex items-center gap-3 px-4 py-3 rounded-2xl text-red-300 hover:bg-red-500/10 transition"
+        >
           <LogOut size={20} />
           Logout
         </button>
