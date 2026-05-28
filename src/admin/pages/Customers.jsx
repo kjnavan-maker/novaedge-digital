@@ -9,6 +9,8 @@ function Customers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
+  const API_URL = "https://novaedge-digital.onrender.com/api/customers";
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -22,7 +24,7 @@ function Customers() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/customers");
+      const response = await axios.get(API_URL);
 
       if (response.data.success) {
         setCustomers(response.data.data);
@@ -48,10 +50,7 @@ function Customers() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/customers",
-        formData
-      );
+      const response = await axios.post(API_URL, formData);
 
       if (response.data.success) {
         alert("Customer added successfully");
@@ -84,9 +83,7 @@ function Customers() {
     if (!confirmDelete) return;
 
     try {
-      const response = await axios.delete(
-        `http://localhost:5000/api/customers/${id}`
-      );
+      const response = await axios.delete(`${API_URL}/${id}`);
 
       if (response.data.success) {
         alert("Customer deleted successfully");
@@ -101,7 +98,7 @@ function Customers() {
   const handleStatusChange = async (id, status) => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/customers/${id}/status`,
+        `${API_URL}/${id}/status`,
         { status }
       );
 
@@ -268,119 +265,6 @@ function Customers() {
           )}
         </div>
       </div>
-
-      {showForm && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-6">
-          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[2rem] border border-white/10 bg-[#080808] p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-black">Add Customer</h2>
-
-              <button
-                onClick={() => setShowForm(false)}
-                className="text-white/50 hover:text-white text-2xl"
-              >
-                ×
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-5">
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Customer Name"
-                required
-                className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-              />
-
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Phone Number"
-                required
-                className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-              />
-
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email Address"
-                className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-              />
-
-              <input
-                type="text"
-                name="business"
-                value={formData.business}
-                onChange={handleChange}
-                placeholder="Business Name"
-                className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-              />
-
-              <select
-                name="service"
-                value={formData.service}
-                onChange={handleChange}
-                required
-                className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-              >
-                <option value="">Select Service</option>
-                <option value="Brand Identity Design">Brand Identity Design</option>
-                <option value="Social Media Management">
-                  Social Media Management
-                </option>
-                <option value="Meta Ads Campaigns">Meta Ads Campaigns</option>
-                <option value="Website Development">Website Development</option>
-                <option value="UI/UX Design">UI/UX Design</option>
-                <option value="Reels Editing">Reels Editing</option>
-              </select>
-
-              <input
-                type="text"
-                name="budget"
-                value={formData.budget}
-                onChange={handleChange}
-                placeholder="Budget"
-                className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-              />
-
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-              >
-                <option value="New">New</option>
-                <option value="Contacted">Contacted</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
-
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                placeholder="Notes"
-                rows="4"
-                className="md:col-span-2 px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white resize-none"
-              ></textarea>
-
-              <button
-                type="submit"
-                className="md:col-span-2 py-4 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
-              >
-                Save Customer
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
     </AdminLayout>
   );
 }

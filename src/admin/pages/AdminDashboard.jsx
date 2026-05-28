@@ -7,9 +7,11 @@ function AdminDashboard() {
   const [inquiries, setInquiries] = useState([]);
   const [customers, setCustomers] = useState([]);
 
+  const API_BASE = "https://novaedge-digital.onrender.com/api";
+
   const fetchInquiries = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/inquiries");
+      const response = await axios.get(`${API_BASE}/inquiries`);
 
       if (response.data.success) {
         setInquiries(response.data.data);
@@ -20,33 +22,34 @@ function AdminDashboard() {
   };
 
   const fetchCustomers = async () => {
-  try {
-    const response = await axios.get("http://localhost:5000/api/customers");
+    try {
+      const response = await axios.get(`${API_BASE}/customers`);
 
-    if (response.data.success) {
-      setCustomers(response.data.data);
+      if (response.data.success) {
+        setCustomers(response.data.data);
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
-  }
-};
+  };
 
   useEffect(() => {
     fetchInquiries();
     fetchCustomers();
   }, []);
 
-  const totalInquiries = inquiries.length;
   const newInquiries = inquiries.filter((item) => item.status === "New").length;
-  const converted = inquiries.filter((item) => item.status === "Converted").length;
+  const converted = inquiries.filter(
+    (item) => item.status === "Converted"
+  ).length;
   const closed = inquiries.filter((item) => item.status === "Closed").length;
 
   const stats = [
-  { title: "Total Customers", value: customers.length, icon: Users },
-  { title: "New Inquiries", value: newInquiries, icon: MessageSquare },
-  { title: "Converted Leads", value: converted, icon: Briefcase },
-  { title: "Closed Inquiries", value: closed, icon: CheckCircle },
-];
+    { title: "Total Customers", value: customers.length, icon: Users },
+    { title: "New Inquiries", value: newInquiries, icon: MessageSquare },
+    { title: "Converted Leads", value: converted, icon: Briefcase },
+    { title: "Closed Inquiries", value: closed, icon: CheckCircle },
+  ];
 
   return (
     <AdminLayout>

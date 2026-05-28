@@ -7,6 +7,10 @@ const inquirySchema = new mongoose.Schema(
     phone: String,
     service: String,
     message: String,
+    status: {
+      type: String,
+      default: "New",
+    },
   },
   { timestamps: true }
 );

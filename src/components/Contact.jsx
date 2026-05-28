@@ -12,6 +12,9 @@ function Contact() {
     message: "",
   });
 
+  const API_URL =
+    "https://novaedge-digital.onrender.com/api/inquiries";
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -23,10 +26,7 @@ function Contact() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/inquiries",
-        formData
-      );
+      const response = await axios.post(API_URL, formData);
 
       if (response.data.success) {
         alert("Inquiry Submitted Successfully!");
@@ -137,12 +137,30 @@ function Contact() {
               className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
             >
               <option value="">Select Service</option>
-              <option value="Brand Identity Design">Brand Identity Design</option>
-              <option value="Social Media Management">Social Media Management</option>
-              <option value="Meta Ads Campaigns">Meta Ads Campaigns</option>
-              <option value="Website Development">Website Development</option>
-              <option value="UI/UX Design">UI/UX Design</option>
-              <option value="Reels Editing">Reels Editing</option>
+
+              <option value="Brand Identity Design">
+                Brand Identity Design
+              </option>
+
+              <option value="Social Media Management">
+                Social Media Management
+              </option>
+
+              <option value="Meta Ads Campaigns">
+                Meta Ads Campaigns
+              </option>
+
+              <option value="Website Development">
+                Website Development
+              </option>
+
+              <option value="UI/UX Design">
+                UI/UX Design
+              </option>
+
+              <option value="Reels Editing">
+                Reels Editing
+              </option>
             </select>
 
             <textarea

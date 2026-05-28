@@ -8,9 +8,11 @@ function Inquiries() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
+  const API_URL = "https://novaedge-digital.onrender.com/api/inquiries";
+
   const fetchInquiries = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/inquiries");
+      const response = await axios.get(API_URL);
 
       if (response.data.success) {
         setInquiries(response.data.data);
@@ -26,16 +28,10 @@ function Inquiries() {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this inquiry?"
-    );
-
-    if (!confirmDelete) return;
+    if (!window.confirm("Are you sure you want to delete this inquiry?")) return;
 
     try {
-      const response = await axios.delete(
-        `http://localhost:5000/api/inquiries/${id}`
-      );
+      const response = await axios.delete(`${API_URL}/${id}`);
 
       if (response.data.success) {
         alert("Inquiry deleted successfully");
@@ -49,10 +45,7 @@ function Inquiries() {
 
   const handleStatusChange = async (id, status) => {
     try {
-      const response = await axios.put(
-        `http://localhost:5000/api/inquiries/${id}/status`,
-        { status }
-      );
+      const response = await axios.put(`${API_URL}/${id}/status`, { status });
 
       if (response.data.success) {
         fetchInquiries();
@@ -64,16 +57,10 @@ function Inquiries() {
   };
 
   const handleConvert = async (id) => {
-    const confirmConvert = window.confirm(
-      "Convert this inquiry into a customer?"
-    );
-
-    if (!confirmConvert) return;
+    if (!window.confirm("Convert this inquiry into a customer?")) return;
 
     try {
-      const response = await axios.post(
-        `http://localhost:5000/api/inquiries/${id}/convert`
-      );
+      const response = await axios.post(`${API_URL}/${id}/convert`);
 
       if (response.data.success) {
         alert("Inquiry converted to customer successfully");
@@ -166,10 +153,7 @@ function Inquiries() {
                 </div>
 
                 <div className="mt-5">
-                  <p className="text-cyan-300 font-semibold">
-                    {item.service}
-                  </p>
-
+                  <p className="text-cyan-300 font-semibold">{item.service}</p>
                   <p className="mt-3 text-white/60 leading-7">
                     {item.message}
                   </p>
