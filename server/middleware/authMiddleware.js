@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
 
-const protectAdmin = (req, res, next) => {
+const protectAdmin = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
-        message: "Not authorized",
+        message: "No token provided",
       });
     }
 
@@ -21,7 +21,7 @@ const protectAdmin = (req, res, next) => {
   } catch (error) {
     res.status(401).json({
       success: false,
-      message: "Token failed",
+      message: "Unauthorized",
     });
   }
 };
