@@ -32,31 +32,13 @@ const getServices = async (req, res) => {
   }
 };
 
-const updateService = async (req, res) => {
-  try {
-    const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-
-    res.status(200).json({
-      success: true,
-      data: service,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
 const deleteService = async (req, res) => {
   try {
     await Service.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
       success: true,
-      message: "Service deleted successfully",
+      message: "Service deleted",
     });
   } catch (error) {
     res.status(500).json({
@@ -69,6 +51,5 @@ const deleteService = async (req, res) => {
 module.exports = {
   createService,
   getServices,
-  updateService,
   deleteService,
 };
