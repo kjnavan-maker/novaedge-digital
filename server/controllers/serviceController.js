@@ -32,13 +32,47 @@ const getServices = async (req, res) => {
   }
 };
 
-const deleteService = async (req, res) => {
+const updateService = async (req, res) => {
   try {
-    await Service.findByIdAndDelete(req.params.id);
+    const service = await Service.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        message: "Service not found",
+      });
+    }
 
     res.status(200).json({
       success: true,
-      message: "Service deleted",
+      data: service,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const deleteService = async (req, res) => {
+  try {
+    const service = await Service.findByIdAndDelete(req.params.id);
+
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        message: "Service not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Service deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
@@ -51,5 +85,6 @@ const deleteService = async (req, res) => {
 module.exports = {
   createService,
   getServices,
+  updateService,
   deleteService,
 };
