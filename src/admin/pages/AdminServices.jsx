@@ -1,74 +1,199 @@
+import { useEffect, useState } from "react";
+import api from "../../utils/api";
 import AdminLayout from "../layouts/AdminLayout";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 
 function AdminServices() {
-  const services = [
-    {
-      title: "Brand Identity Design",
-      description: "Premium logo systems, colors, typography and visual identity.",
-      status: "Active",
-    },
-    {
-      title: "Social Media Management",
-      description: "Content planning, page management and creative direction.",
-      status: "Active",
-    },
-    {
-      title: "Website Development",
-      description: "Fast, responsive and premium websites for modern businesses.",
-      status: "Active",
-    },
-  ];
+  const [services, setServices] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    status: "Active",
+  });
+
+  const fetchServices = async () => {
+    try {
+      const response = await api.get("/services");
+
+      setServices(response.data.data);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load services");
+    }
+  };
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await api.post("/services", formData);
+
+      if (response.data.success) {
+        alert("Service added successfully");
+
+        setFormData({
+          title: "",
+          description: "",
+          status: "Active",
+        });
+
+        setShowForm(false);
+
+        fetchServices();
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to add service");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this service?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const response = await api.delete(`/services/${id}`);
+
+      if (response.data.success) {
+        alert("Service deleted successfully");
+
+        fetchServices();
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to delete service");
+    }
+  };
 
   return (
     <AdminLayout>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-8">
         <div>
           <h1 className="text-4xl font-black">Services</h1>
+
           <p className="mt-2 text-white/50">
-            Manage NovaEdge Digital service list.
+            Manage NovaEdge Digital services.
           </p>
         </div>
 
-        <button className="flex items-center gap-2 px-5 py-3 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition">
+        <button
+          onClick={() => setShowForm(true)}
+          className="flex items-center gap-2 px-5 py-3 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
+        >
           <Plus size={18} />
           Add Service
         </button>
       </div>
 
-      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {services.map((service, index) => (
-          <div
-            key={index}
-            className="rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-2xl font-bold">{service.title}</h3>
-                <span className="inline-block mt-3 px-3 py-1 rounded-full bg-cyan-300/10 text-cyan-300 border border-cyan-300/20 text-sm">
-                  {service.status}
-                </span>
+      <div className="grid lg:grid-cols-2 gap-6">
+        {services.length === 0 ? (
+          <p className="text-white/50">No services found.</p>
+        ) : (
+          services.map((service) => (
+            <div
+              key={service._id}
+              className="rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6"
+            >
+              <div className="flex items-start justify-between gap-5">
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    {service.title}
+                  </h2>
+
+                  <p className="mt-3 text-white/60 leading-7">
+                    {service.description}
+                  </p>
+
+                  <span className="inline-block mt-5 px-3 py-1 rounded-full bg-cyan-300/10 text-cyan-300 border border-cyan-300/20 text-sm">
+                    {service.status}
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => handleDelete(service._id)}
+                  className="text-red-300 hover:text-red-200"
+                >
+                  <Trash2 size={20} />
+                </button>
               </div>
             </div>
+          ))
+        )}
+      </div>
 
-            <p className="mt-5 text-white/55 leading-7">
-              {service.description}
-            </p>
+      {showForm && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-6">
+          <div className="w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#080808] p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-black">
+                Add Service
+              </h2>
 
-            <div className="mt-6 flex gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-blue-300 hover:border-blue-300/40 transition">
-                <Pencil size={16} />
-                Edit
-              </button>
-
-              <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-red-300 hover:border-red-300/40 transition">
-                <Trash2 size={16} />
-                Delete
+              <button
+                onClick={() => setShowForm(false)}
+                className="text-white/50 hover:text-white text-2xl"
+              >
+                ×
               </button>
             </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="Service Title"
+                required
+                className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
+              />
+
+              <textarea
+                rows="5"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Service Description"
+                required
+                className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white resize-none"
+              ></textarea>
+
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+
+              <button
+                type="submit"
+                className="w-full py-4 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
+              >
+                Save Service
+              </button>
+            </form>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }
