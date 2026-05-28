@@ -4,6 +4,7 @@ const {
   createCustomer,
   getCustomers,
   deleteCustomer,
+  updateCustomer,
   updateCustomerStatus,
 } = require("../controllers/customerController");
 
@@ -17,6 +18,8 @@ ADMIN PROTECTED ROUTES
 router.post("/", protectAdmin, createCustomer);
 
 router.get("/", protectAdmin, getCustomers);
+
+router.put("/:id", protectAdmin, updateCustomer);
 
 router.delete("/:id", protectAdmin, deleteCustomer);
 

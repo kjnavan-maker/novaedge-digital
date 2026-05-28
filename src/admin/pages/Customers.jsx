@@ -6,10 +6,11 @@ import { Eye, Pencil, Trash2, MessageCircle, Plus } from "lucide-react";
 function Customers() {
   const [customers, setCustomers] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
-  const [formData, setFormData] = useState({
+  const initialForm = {
     name: "",
     phone: "",
     email: "",
@@ -18,7 +19,9 @@ function Customers() {
     budget: "",
     status: "New",
     notes: "",
-  });
+  };
+
+  const [formData, setFormData] = useState(initialForm);
 
   const fetchCustomers = async () => {
     try {
@@ -41,41 +44,60 @@ function Customers() {
     });
   };
 
+  const openAddForm = () => {
+    setEditingCustomer(null);
+    setFormData(initialForm);
+    setShowForm(true);
+  };
+
+  const openEditForm = (customer) => {
+    setEditingCustomer(customer);
+    setFormData({
+      name: customer.name || "",
+      phone: customer.phone || "",
+      email: customer.email || "",
+      business: customer.business || "",
+      service: customer.service || "",
+      budget: customer.budget || "",
+      status: customer.status || "New",
+      notes: customer.notes || "",
+    });
+    setShowForm(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await api.post("/customers", formData);
+      const response = editingCustomer
+        ? await api.put(`/customers/${editingCustomer._id}`, formData)
+        : await api.post("/customers", formData);
 
       if (response.data.success) {
-        alert("Customer added successfully");
+        alert(
+          editingCustomer
+            ? "Customer updated successfully"
+            : "Customer added successfully"
+        );
 
-        setFormData({
-          name: "",
-          phone: "",
-          email: "",
-          business: "",
-          service: "",
-          budget: "",
-          status: "New",
-          notes: "",
-        });
-
+        setFormData(initialForm);
+        setEditingCustomer(null);
         setShowForm(false);
         fetchCustomers();
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to add customer");
+      alert(
+        editingCustomer
+          ? "Failed to update customer"
+          : "Failed to add customer"
+      );
     }
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this customer?"
-    );
-
-    if (!confirmDelete) return;
+    if (!window.confirm("Are you sure you want to delete this customer?"))
+      return;
 
     try {
       const response = await api.delete(`/customers/${id}`);
@@ -130,7 +152,7 @@ function Customers() {
         </div>
 
         <button
-          onClick={() => setShowForm(true)}
+          onClick={openAddForm}
           className="flex items-center gap-2 px-5 py-3 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
         >
           <Plus size={18} />
@@ -226,7 +248,10 @@ function Customers() {
                           <Eye size={18} />
                         </button>
 
-                        <button className="text-blue-300 hover:text-blue-200">
+                        <button
+                          onClick={() => openEditForm(customer)}
+                          className="text-blue-300 hover:text-blue-200"
+                        >
                           <Pencil size={18} />
                         </button>
 
@@ -262,10 +287,16 @@ function Customers() {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-6">
           <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[2rem] border border-white/10 bg-[#080808] p-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-black">Add Customer</h2>
+              <h2 className="text-3xl font-black">
+                {editingCustomer ? "Edit Customer" : "Add Customer"}
+              </h2>
 
               <button
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingCustomer(null);
+                  setFormData(initialForm);
+                }}
                 className="text-white/50 hover:text-white text-2xl"
               >
                 ×
@@ -319,7 +350,9 @@ function Customers() {
                 className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
               >
                 <option value="">Select Service</option>
-                <option value="Brand Identity Design">Brand Identity Design</option>
+                <option value="Brand Identity Design">
+                  Brand Identity Design
+                </option>
                 <option value="Social Media Management">
                   Social Media Management
                 </option>
@@ -364,7 +397,7 @@ function Customers() {
                 type="submit"
                 className="md:col-span-2 py-4 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
               >
-                Save Customer
+                {editingCustomer ? "Update Customer" : "Save Customer"}
               </button>
             </form>
           </div>
