@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 import AdminLayout from "../layouts/AdminLayout";
 import { Eye, Trash2, MessageCircle, UserPlus } from "lucide-react";
 
@@ -8,15 +8,10 @@ function Inquiries() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
-  const API_URL = "https://novaedge-digital.onrender.com/api/inquiries";
-
   const fetchInquiries = async () => {
     try {
-      const response = await axios.get(API_URL);
-
-      if (response.data.success) {
-        setInquiries(response.data.data);
-      }
+      const response = await api.get("/inquiries");
+      setInquiries(response.data.data);
     } catch (error) {
       console.error(error);
       alert("Failed to load inquiries");
@@ -31,7 +26,7 @@ function Inquiries() {
     if (!window.confirm("Are you sure you want to delete this inquiry?")) return;
 
     try {
-      const response = await axios.delete(`${API_URL}/${id}`);
+      const response = await api.delete(`/inquiries/${id}`);
 
       if (response.data.success) {
         alert("Inquiry deleted successfully");
@@ -45,7 +40,7 @@ function Inquiries() {
 
   const handleStatusChange = async (id, status) => {
     try {
-      const response = await axios.put(`${API_URL}/${id}/status`, { status });
+      const response = await api.put(`/inquiries/${id}/status`, { status });
 
       if (response.data.success) {
         fetchInquiries();
@@ -60,7 +55,7 @@ function Inquiries() {
     if (!window.confirm("Convert this inquiry into a customer?")) return;
 
     try {
-      const response = await axios.post(`${API_URL}/${id}/convert`);
+      const response = await api.post(`/inquiries/${id}/convert`);
 
       if (response.data.success) {
         alert("Inquiry converted to customer successfully");

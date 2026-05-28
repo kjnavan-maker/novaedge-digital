@@ -7,11 +7,19 @@ const {
   updateCustomerStatus,
 } = require("../controllers/customerController");
 
+const protectAdmin = require("../middleware/authMiddleware");
+
 const router = express.Router();
 
-router.post("/", createCustomer);
-router.get("/", getCustomers);
-router.delete("/:id", deleteCustomer);
-router.put("/:id/status", updateCustomerStatus);
+/*
+ADMIN PROTECTED ROUTES
+*/
+router.post("/", protectAdmin, createCustomer);
+
+router.get("/", protectAdmin, getCustomers);
+
+router.delete("/:id", protectAdmin, deleteCustomer);
+
+router.put("/:id/status", protectAdmin, updateCustomerStatus);
 
 module.exports = router;

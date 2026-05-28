@@ -8,12 +8,25 @@ const {
   convertInquiryToCustomer,
 } = require("../controllers/inquiryController");
 
+const protectAdmin = require("../middleware/authMiddleware");
+
 const router = express.Router();
 
+/*
+PUBLIC ROUTE
+Website users inquiry submit pannurathu
+*/
 router.post("/", createInquiry);
-router.get("/", getInquiries);
-router.delete("/:id", deleteInquiry);
-router.put("/:id/status", updateInquiryStatus);
-router.post("/:id/convert", convertInquiryToCustomer);
+
+/*
+ADMIN PROTECTED ROUTES
+*/
+router.get("/", protectAdmin, getInquiries);
+
+router.delete("/:id", protectAdmin, deleteInquiry);
+
+router.put("/:id/status", protectAdmin, updateInquiryStatus);
+
+router.post("/:id/convert", protectAdmin, convertInquiryToCustomer);
 
 module.exports = router;

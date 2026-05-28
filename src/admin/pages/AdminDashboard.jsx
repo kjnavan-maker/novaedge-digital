@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 import AdminLayout from "../layouts/AdminLayout";
 import { Users, MessageSquare, Briefcase, CheckCircle } from "lucide-react";
 
@@ -7,41 +7,24 @@ function AdminDashboard() {
   const [inquiries, setInquiries] = useState([]);
   const [customers, setCustomers] = useState([]);
 
-  const API_BASE = "https://novaedge-digital.onrender.com/api";
-
-  const fetchInquiries = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/inquiries`);
+      const inquiriesRes = await api.get("/inquiries");
+      const customersRes = await api.get("/customers");
 
-      if (response.data.success) {
-        setInquiries(response.data.data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchCustomers = async () => {
-    try {
-      const response = await axios.get(`${API_BASE}/customers`);
-
-      if (response.data.success) {
-        setCustomers(response.data.data);
-      }
+      setInquiries(inquiriesRes.data.data);
+      setCustomers(customersRes.data.data);
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
-    fetchInquiries();
-    fetchCustomers();
+    fetchData();
   }, []);
 
   const newInquiries = inquiries.filter((item) => item.status === "New").length;
-  const converted = inquiries.filter(
-    (item) => item.status === "Converted"
-  ).length;
+  const converted = inquiries.filter((item) => item.status === "Converted").length;
   const closed = inquiries.filter((item) => item.status === "Closed").length;
 
   const stats = [
@@ -65,19 +48,12 @@ function AdminDashboard() {
           const Icon = item.icon;
 
           return (
-            <div
-              key={item.title}
-              className="rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6"
-            >
+            <div key={item.title} className="rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6">
               <div className="w-12 h-12 rounded-2xl bg-cyan-300/10 border border-cyan-300/20 flex items-center justify-center mb-6">
                 <Icon className="text-cyan-300" size={24} />
               </div>
-
               <h3 className="text-white/50">{item.title}</h3>
-
-              <p className="mt-2 text-4xl font-black text-cyan-300">
-                {item.value}
-              </p>
+              <p className="mt-2 text-4xl font-black text-cyan-300">{item.value}</p>
             </div>
           );
         })}
@@ -91,10 +67,7 @@ function AdminDashboard() {
         ) : (
           <div className="space-y-4">
             {inquiries.slice(0, 5).map((item) => (
-              <div
-                key={item._id}
-                className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-white/10 pb-4"
-              >
+              <div key={item._id} className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-white/10 pb-4">
                 <div>
                   <h3 className="font-bold">{item.name}</h3>
                   <p className="text-white/45">{item.service}</p>
