@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
 import {
   LayoutDashboard,
   Users,
@@ -13,24 +14,49 @@ function AdminLayout({ children }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("novaedgeAdmin");
+    const token = localStorage.getItem("novaedgeToken");
 
-    if (isLoggedIn !== "true") {
+    if (!token) {
       navigate("/admin");
     }
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("novaedgeAdmin");
+    localStorage.removeItem("novaedgeToken");
+
     navigate("/admin");
   };
 
   const menu = [
-    { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
-    { name: "Customers", path: "/admin/customers", icon: Users },
-    { name: "Inquiries", path: "/admin/inquiries", icon: MessageSquare },
-    { name: "Services", path: "/admin/services", icon: Briefcase },
-    { name: "Settings", path: "/admin/settings", icon: Settings },
+    {
+      name: "Dashboard",
+      path: "/admin/dashboard",
+      icon: LayoutDashboard,
+    },
+
+    {
+      name: "Customers",
+      path: "/admin/customers",
+      icon: Users,
+    },
+
+    {
+      name: "Inquiries",
+      path: "/admin/inquiries",
+      icon: MessageSquare,
+    },
+
+    {
+      name: "Services",
+      path: "/admin/services",
+      icon: Briefcase,
+    },
+
+    {
+      name: "Settings",
+      path: "/admin/settings",
+      icon: Settings,
+    },
   ];
 
   return (
@@ -66,7 +92,9 @@ function AdminLayout({ children }) {
         </button>
       </aside>
 
-      <main className="flex-1 p-6 md:p-10">{children}</main>
+      <main className="flex-1 p-6 md:p-10">
+        {children}
+      </main>
     </div>
   );
 }
