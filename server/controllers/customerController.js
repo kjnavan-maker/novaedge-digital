@@ -82,26 +82,6 @@ const deleteCustomer = async (req, res) => {
   }
 };
 
-const updateCustomer = async (req, res) => {
-  try {
-    const customer = await Customer.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-
-    res.status(200).json({
-      success: true,
-      data: customer,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
 const updateCustomerStatus = async (req, res) => {
   try {
     const customer = await Customer.findByIdAndUpdate(
@@ -128,8 +108,6 @@ const updateCustomerStatus = async (req, res) => {
     });
   }
 };
-
-
 
 module.exports = {
   createCustomer,
