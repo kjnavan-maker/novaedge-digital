@@ -10,6 +10,13 @@ import {
 function Contact() {
   const [settings, setSettings] = useState({});
 
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    service: "",
+    message: "",
+  });
+
   useEffect(() => {
     fetchSettings();
   }, []);
@@ -25,6 +32,39 @@ function Contact() {
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(
+        "https://novaedge-digital.onrender.com/api/inquiries",
+        formData
+      );
+
+      if (response.data.success) {
+        alert("Inquiry Submitted Successfully!");
+
+        setFormData({
+          fullName: "",
+          email: "",
+          service: "",
+          message: "",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+
+      alert("Failed to submit inquiry");
     }
   };
 
@@ -69,22 +109,47 @@ function Contact() {
         </div>
 
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-8">
-          <form className="space-y-5">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
             <input
               type="text"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
               placeholder="Your Name"
+              required
               className="w-full p-4 rounded-2xl bg-black/40 border border-white/10"
             />
 
             <input
               type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               placeholder="Your Email"
+              required
+              className="w-full p-4 rounded-2xl bg-black/40 border border-white/10"
+            />
+
+            <input
+              type="text"
+              name="service"
+              value={formData.service}
+              onChange={handleChange}
+              placeholder="Required Service"
+              required
               className="w-full p-4 rounded-2xl bg-black/40 border border-white/10"
             />
 
             <textarea
               rows="6"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
               placeholder="Your Message"
+              required
               className="w-full p-4 rounded-2xl bg-black/40 border border-white/10"
             />
 
