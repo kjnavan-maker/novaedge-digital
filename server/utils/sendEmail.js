@@ -7,12 +7,14 @@ const sendEmail = async ({ to, subject, html }) => {
     console.log("TO:", to);
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-      },
-    });
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
+});
 
     const info = await transporter.sendMail({
       from: `"NovaEdge Digital" <${process.env.MAIL_USER}>`,
