@@ -8,14 +8,14 @@ const sendEmail = async ({ to, subject, html }) => {
     console.log("MAIL_USER =", process.env.MAIL_USER);
 
     const transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST,
-      port: Number(process.env.MAIL_PORT) || 587,
-      secure: false,
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-      },
-    });
+  host: process.env.MAIL_HOST,
+  port: Number(process.env.MAIL_PORT),
+  secure: false,
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
+});
 
     const info = await transporter.sendMail({
       from: `"NovaEdge Digital" <${process.env.MAIL_USER}>`,
