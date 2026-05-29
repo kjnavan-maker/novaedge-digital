@@ -8,6 +8,7 @@ import {
   Briefcase,
   Settings,
   LogOut,
+  Image,
 } from "lucide-react";
 
 function AdminLayout({ children }) {
@@ -23,7 +24,6 @@ function AdminLayout({ children }) {
 
   const handleLogout = () => {
     localStorage.removeItem("novaedgeToken");
-
     navigate("/admin");
   };
 
@@ -33,25 +33,26 @@ function AdminLayout({ children }) {
       path: "/admin/dashboard",
       icon: LayoutDashboard,
     },
-
     {
       name: "Customers",
       path: "/admin/customers",
       icon: Users,
     },
-
     {
       name: "Inquiries",
       path: "/admin/inquiries",
       icon: MessageSquare,
     },
-
     {
       name: "Services",
       path: "/admin/services",
       icon: Briefcase,
     },
-
+    {
+      name: "Portfolio",
+      path: "/admin/portfolio",
+      icon: Image,
+    },
     {
       name: "Settings",
       path: "/admin/settings",
@@ -92,9 +93,7 @@ function AdminLayout({ children }) {
         </button>
       </aside>
 
-      <main className="flex-1 p-6 md:p-10">
-        {children}
-      </main>
+      <main className="flex-1 p-6 md:p-10">{children}</main>
     </div>
   );
 }

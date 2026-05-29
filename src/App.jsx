@@ -20,6 +20,7 @@ import Customers from "./admin/pages/Customers";
 import Inquiries from "./admin/pages/Inquiries";
 import AdminServices from "./admin/pages/AdminServices";
 import AdminSettings from "./admin/pages/AdminSettings";
+import AdminPortfolio from "./admin/pages/AdminPortfolio";
 
 function HomePage() {
   return (
@@ -142,6 +143,7 @@ function App() {
         <Route path="/admin/inquiries" element={<Inquiries />} />
         <Route path="/admin/services" element={<AdminServices />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
+        <Route path="/admin/portfolio" element={<AdminPortfolio />} />
       </Routes>
     </BrowserRouter>
   );
