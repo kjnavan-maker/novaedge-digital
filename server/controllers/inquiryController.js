@@ -6,6 +6,33 @@ const createInquiry = async (req, res) => {
   try {
     const inquiry = await Inquiry.create(req.body);
 
+    await sendEmail({
+      to: process.env.ADMIN_NOTIFY_EMAIL,
+      subject: "New Inquiry - NovaEdge Digital",
+      html: `
+        <h2>New Inquiry Received</h2>
+        <p><strong>Name:</strong> ${inquiry.name}</p>
+        <p><strong>Email:</strong> ${inquiry.email}</p>
+        <p><strong>Phone:</strong> ${inquiry.phone}</p>
+        <p><strong>Service:</strong> ${inquiry.service}</p>
+        <p><strong>Message:</strong> ${inquiry.message}</p>
+      `,
+    });
+
+    if (inquiry.email) {
+      await sendEmail({
+        to: inquiry.email,
+        subject: "Thank you for contacting NovaEdge Digital",
+        html: `
+          <h2>Thank you, ${inquiry.name}</h2>
+          <p>We received your inquiry about <strong>${inquiry.service}</strong>.</p>
+          <p>Our team will contact you shortly.</p>
+          <br/>
+          <p>Regards,<br/>NovaEdge Digital</p>
+        `,
+      });
+    }
+
     res.status(201).json({
       success: true,
       data: inquiry,
@@ -17,31 +44,6 @@ const createInquiry = async (req, res) => {
     });
   }
 };
-
-await sendEmail({
-  to: process.env.ADMIN_NOTIFY_EMAIL,
-  subject: "New Inquiry - NovaEdge Digital",
-  html: `
-    <h2>New Inquiry Received</h2>
-    <p><strong>Name:</strong> ${inquiry.name}</p>
-    <p><strong>Email:</strong> ${inquiry.email}</p>
-    <p><strong>Phone:</strong> ${inquiry.phone}</p>
-    <p><strong>Service:</strong> ${inquiry.service}</p>
-    <p><strong>Message:</strong> ${inquiry.message}</p>
-  `,
-});
-
-await sendEmail({
-  to: inquiry.email,
-  subject: "Thank you for contacting NovaEdge Digital",
-  html: `
-    <h2>Thank you, ${inquiry.name}</h2>
-    <p>We received your inquiry about <strong>${inquiry.service}</strong>.</p>
-    <p>Our team will contact you shortly.</p>
-    <br/>
-    <p>Regards,<br/>NovaEdge Digital</p>
-  `,
-});
 
 const getInquiries = async (req, res) => {
   try {
