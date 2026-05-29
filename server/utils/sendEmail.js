@@ -2,21 +2,14 @@ const nodemailer = require("nodemailer");
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    console.log("Sending email...");
-    console.log("MAIL_USER:", process.env.MAIL_USER);
-    console.log("TO:", to);
-
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
+      host: process.env.MAIL_HOST,
+      port: Number(process.env.MAIL_PORT),
       secure: false,
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
-      connectionTimeout: 60000,
-      greetingTimeout: 30000,
-      socketTimeout: 60000,
     });
 
     const info = await transporter.sendMail({
@@ -29,8 +22,7 @@ const sendEmail = async ({ to, subject, html }) => {
     console.log("Email sent:", info.messageId);
     return true;
   } catch (error) {
-    console.error("Email Error Message:", error.message);
-    console.error("Email Error Code:", error.code);
+    console.error("Email Error:", error);
     return false;
   }
 };
