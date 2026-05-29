@@ -51,8 +51,26 @@ function Portfolio() {
     }
   };
 
+  const allProjects = [
+    ...staticProjects.map((project) => ({
+      ...project,
+      isStatic: true,
+    })),
+    ...adminProjects.map((project) => ({
+      title: project.title,
+      category: project.category,
+      text: project.description,
+      image: project.image,
+      projectUrl: project.projectUrl,
+      isStatic: false,
+      _id: project._id,
+    })),
+  ];
+
+  const duplicatedProjects = [...allProjects, ...allProjects];
+
   return (
-    <section id="portfolio" className="relative z-10 px-6 py-24">
+    <section id="portfolio" className="relative z-10 px-6 py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
           <div>
@@ -71,90 +89,67 @@ function Portfolio() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-7">
-          {staticProjects.map((project, index) => (
-            <motion.div
-              key={project.title}
-              initial={{ opacity: 0, y: 35 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl overflow-hidden hover:border-cyan-300/40 transition"
-            >
-              <div className="h-72 bg-gradient-to-br from-cyan-400/20 via-blue-600/20 to-purple-600/25 flex items-center justify-center overflow-hidden">
-                <div className="w-28 h-28 rounded-full border border-cyan-300/30 shadow-[0_0_60px_rgba(103,232,249,0.25)] group-hover:scale-125 transition duration-700" />
-              </div>
+        <div className="relative">
+          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-[#050505] to-transparent" />
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-[#050505] to-transparent" />
 
-              <div className="p-7">
-                <span className="inline-block px-4 py-1 rounded-full bg-cyan-300/10 border border-cyan-300/20 text-cyan-300 text-sm mb-4">
-                  {project.category}
-                </span>
-
-                <h3 className="text-2xl font-bold">{project.title}</h3>
-
-                <p className="mt-3 text-white/55 leading-7">{project.text}</p>
-
-                <button className="mt-6 flex items-center gap-2 text-cyan-300 font-semibold group-hover:gap-4 transition-all">
-                  View Case Study <ArrowRight size={18} />
-                </button>
-              </div>
-            </motion.div>
-          ))}
-
-          {adminProjects.map((project, index) => (
-            <motion.div
-              key={project._id}
-              initial={{ opacity: 0, y: 35 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{
-                duration: 0.6,
-                delay: (staticProjects.length + index) * 0.1,
-              }}
-              className="group rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl overflow-hidden hover:border-cyan-300/40 transition"
-            >
-              {project.image ? (
-                <div className="h-72 overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                  />
-                </div>
-              ) : (
-                <div className="h-72 bg-gradient-to-br from-cyan-400/20 via-blue-600/20 to-purple-600/25 flex items-center justify-center overflow-hidden">
-                  <div className="w-28 h-28 rounded-full border border-cyan-300/30 shadow-[0_0_60px_rgba(103,232,249,0.25)] group-hover:scale-125 transition duration-700" />
-                </div>
-              )}
-
-              <div className="p-7">
-                <span className="inline-block px-4 py-1 rounded-full bg-cyan-300/10 border border-cyan-300/20 text-cyan-300 text-sm mb-4">
-                  {project.category}
-                </span>
-
-                <h3 className="text-2xl font-bold">{project.title}</h3>
-
-                <p className="mt-3 text-white/55 leading-7">
-                  {project.description}
-                </p>
-
-                {project.projectUrl ? (
-                  <a
-                    href={project.projectUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-6 flex items-center gap-2 text-cyan-300 font-semibold group-hover:gap-4 transition-all"
-                  >
-                    View Project <ArrowRight size={18} />
-                  </a>
+          <motion.div
+            className="flex gap-7 w-max"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{
+              duration: 35,
+              ease: "linear",
+              repeat: Infinity,
+            }}
+          >
+            {duplicatedProjects.map((project, index) => (
+              <div
+                key={`${project.title}-${index}`}
+                className="group w-[340px] md:w-[430px] rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl overflow-hidden hover:border-cyan-300/40 transition"
+              >
+                {project.image ? (
+                  <div className="h-64 overflow-hidden">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                    />
+                  </div>
                 ) : (
-                  <button className="mt-6 flex items-center gap-2 text-cyan-300 font-semibold group-hover:gap-4 transition-all">
-                    View Case Study <ArrowRight size={18} />
-                  </button>
+                  <div className="h-64 bg-gradient-to-br from-cyan-400/20 via-blue-600/20 to-purple-600/25 flex items-center justify-center overflow-hidden">
+                    <div className="w-28 h-28 rounded-full border border-cyan-300/30 shadow-[0_0_60px_rgba(103,232,249,0.25)] group-hover:scale-125 transition duration-700" />
+                  </div>
                 )}
+
+                <div className="p-7">
+                  <span className="inline-block px-4 py-1 rounded-full bg-cyan-300/10 border border-cyan-300/20 text-cyan-300 text-sm mb-4">
+                    {project.category}
+                  </span>
+
+                  <h3 className="text-2xl font-bold">{project.title}</h3>
+
+                  <p className="mt-3 text-white/55 leading-7 line-clamp-3">
+                    {project.text}
+                  </p>
+
+                  {project.projectUrl ? (
+                    <a
+                      href={project.projectUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-6 flex items-center gap-2 text-cyan-300 font-semibold group-hover:gap-4 transition-all"
+                    >
+                      View Project <ArrowRight size={18} />
+                    </a>
+                  ) : (
+                    <button className="mt-6 flex items-center gap-2 text-cyan-300 font-semibold group-hover:gap-4 transition-all">
+                      View Case Study <ArrowRight size={18} />
+                    </button>
+                  )}
+                </div>
               </div>
-            </motion.div>
-          ))}
+            ))}
+          </motion.div>
         </div>
       </div>
     </section>
