@@ -40,6 +40,35 @@ function AdminPortfolio() {
     });
   };
 
+  const handleImageUpload = async (e) => {
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  const uploadData = new FormData();
+  uploadData.append("image", file);
+
+  try {
+    const response = await api.post("/upload/image", uploadData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (response.data.success) {
+      setFormData({
+        ...formData,
+        image: response.data.imageUrl,
+      });
+
+      alert("Image uploaded successfully");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Image upload failed");
+  }
+};
+
   const openAddForm = () => {
     setEditingPortfolio(null);
     setFormData(initialForm);
@@ -235,14 +264,22 @@ function AdminPortfolio() {
                 className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
               />
 
-              <input
-                type="text"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                placeholder="Image URL"
-                className="md:col-span-2 px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-              />
+              <div className="md:col-span-2">
+  <input
+    type="file"
+    accept="image/*"
+    onChange={handleImageUpload}
+    className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
+  />
+
+  {formData.image && (
+    <img
+      src={formData.image}
+      alt="Preview"
+      className="mt-4 w-full h-56 object-cover rounded-2xl border border-white/10"
+    />
+  )}
+</div>
 
               <input
                 type="text"
