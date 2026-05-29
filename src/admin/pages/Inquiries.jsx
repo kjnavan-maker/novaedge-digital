@@ -5,6 +5,7 @@ import { Eye, Trash2, MessageCircle, UserPlus } from "lucide-react";
 
 function Inquiries() {
   const [inquiries, setInquiries] = useState([]);
+  const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
@@ -161,7 +162,10 @@ function Inquiries() {
                 </p>
 
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-cyan-300">
+                  <button
+                    onClick={() => setSelectedInquiry(item)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-cyan-300"
+                  >
                     <Eye size={16} />
                     View
                   </button>
@@ -197,6 +201,73 @@ function Inquiries() {
           </div>
         )}
       </div>
+
+      {selectedInquiry && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] border border-white/10 bg-[#080808] p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-black">Inquiry Details</h2>
+
+              <button
+                onClick={() => setSelectedInquiry(null)}
+                className="text-white/50 hover:text-red-300 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-5">
+              <div>
+                <p className="text-white/40 text-sm">Name</p>
+                <p className="mt-1 font-semibold">{selectedInquiry.name}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Email</p>
+                <p className="mt-1">{selectedInquiry.email}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Phone</p>
+                <p className="mt-1">{selectedInquiry.phone}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Service</p>
+                <p className="mt-1 text-cyan-300">{selectedInquiry.service}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Status</p>
+                <p className="mt-1">{selectedInquiry.status || "New"}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Created Date</p>
+                <p className="mt-1">
+                  {selectedInquiry.createdAt
+                    ? new Date(selectedInquiry.createdAt).toLocaleString()
+                    : "-"}
+                </p>
+              </div>
+
+              <div className="md:col-span-2">
+                <p className="text-white/40 text-sm">Message</p>
+                <p className="mt-2 leading-7 text-white/70">
+                  {selectedInquiry.message}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSelectedInquiry(null)}
+              className="mt-8 w-full py-4 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }
