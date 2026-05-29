@@ -179,7 +179,21 @@ function Inquiries() {
                   </button>
 
                   <a
-                    href={`https://wa.me/${item.phone?.replace(/\D/g, "")}`}
+                    href={`https://wa.me/${item.phone?.replace(
+  /\D/g,
+  ""
+)}?text=${encodeURIComponent(
+  `Hello ${item.name},
+
+Thank you for contacting NovaEdge Digital.
+
+We received your inquiry regarding ${item.service}.
+
+Our team will contact you shortly.
+
+Regards,
+NovaEdge Digital`
+)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-green-300"

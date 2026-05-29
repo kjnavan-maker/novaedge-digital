@@ -259,11 +259,20 @@ function Customers() {
                           <Pencil size={18} />
                         </button>
 
-                        <a
-                          href={`https://wa.me/${customer.phone?.replace(
-                            /\D/g,
-                            ""
-                          )}`}
+                        <a href={`https://wa.me/${customer.phone?.replace( /\D/g,
+  ""
+)}?text=${encodeURIComponent(
+  `Hello ${customer.name},
+
+Thank you for contacting NovaEdge Digital.
+
+We received your request for ${customer.service}.
+
+Our team will contact you shortly.
+
+Regards,
+NovaEdge Digital`
+)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-green-300 hover:text-green-200"
