@@ -9,6 +9,7 @@ function Customers() {
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const initialForm = {
     name: "",
@@ -244,9 +245,12 @@ function Customers() {
 
                     <td className="py-4 px-4">
                       <div className="flex gap-3">
-                        <button className="text-cyan-300 hover:text-cyan-200">
-                          <Eye size={18} />
-                        </button>
+                        <button
+  onClick={() => setSelectedCustomer(customer)}
+  className="text-cyan-300 hover:text-cyan-200"
+>
+  <Eye size={18} />
+</button>
 
                         <button
                           onClick={() => openEditForm(customer)}
@@ -403,6 +407,101 @@ function Customers() {
           </div>
         </div>
       )}
+
+      {selectedCustomer && (
+  <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] border border-white/10 bg-[#080808] p-8">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-black">
+          Customer Details
+        </h2>
+
+        <button
+          onClick={() => setSelectedCustomer(null)}
+          className="text-white/50 hover:text-red-300 text-2xl"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-5">
+        <div>
+          <p className="text-white/40 text-sm">Name</p>
+          <p className="mt-1 font-semibold">
+            {selectedCustomer.name}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-white/40 text-sm">Phone</p>
+          <p className="mt-1">
+            {selectedCustomer.phone}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-white/40 text-sm">Email</p>
+          <p className="mt-1">
+            {selectedCustomer.email || "-"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-white/40 text-sm">Business</p>
+          <p className="mt-1">
+            {selectedCustomer.business || "-"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-white/40 text-sm">Service</p>
+          <p className="mt-1 text-cyan-300">
+            {selectedCustomer.service}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-white/40 text-sm">Budget</p>
+          <p className="mt-1">
+            {selectedCustomer.budget || "-"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-white/40 text-sm">Status</p>
+          <p className="mt-1">
+            {selectedCustomer.status}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-white/40 text-sm">Created Date</p>
+          <p className="mt-1">
+            {selectedCustomer.createdAt
+              ? new Date(
+                  selectedCustomer.createdAt
+                ).toLocaleString()
+              : "-"}
+          </p>
+        </div>
+
+        <div className="md:col-span-2">
+          <p className="text-white/40 text-sm">Notes</p>
+          <p className="mt-2 leading-7 text-white/70">
+            {selectedCustomer.notes || "No notes available"}
+          </p>
+        </div>
+      </div>
+
+      <button
+        onClick={() => setSelectedCustomer(null)}
+        className="mt-8 w-full py-4 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
     </AdminLayout>
   );
 }
