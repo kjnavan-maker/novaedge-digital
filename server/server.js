@@ -10,6 +10,7 @@ const authRoutes = require("./routes/authRoutes");
 const serviceRoutes = require("./routes/serviceRoutes");
 const settingRoutes = require("./routes/settingRoutes");
 const portfolioRoutes = require("./routes/portfolioRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api/customers", customerRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/settings", settingRoutes);
 app.use("/api/portfolio", portfolioRoutes);
+app.use("/api/upload", uploadRoutes);
 
 const PORT = process.env.PORT || 5000;
 
