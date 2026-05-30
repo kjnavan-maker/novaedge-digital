@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import api from "../../utils/api";
 import AdminLayout from "../layouts/AdminLayout";
-import { Eye, Pencil, Trash2, MessageCircle, Plus } from "lucide-react";
+import {
+  Eye,
+  Pencil,
+  Trash2,
+  MessageCircle,
+  Plus,
+  Download,
+  Search,
+  Filter,
+} from "lucide-react";
 
 function Customers() {
   const [customers, setCustomers] = useState([]);
@@ -27,7 +36,7 @@ function Customers() {
   const fetchCustomers = async () => {
     try {
       const response = await api.get("/customers");
-      setCustomers(response.data.data);
+      setCustomers(response.data.data || []);
     } catch (error) {
       console.error(error);
       alert("Failed to load customers");
@@ -39,10 +48,7 @@ function Customers() {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const openAddForm = () => {
@@ -137,10 +143,61 @@ function Customers() {
       customer.service?.toLowerCase().includes(search);
 
     const matchesStatus =
-      statusFilter === "All" || customer.status === statusFilter;
+      statusFilter === "All" || (customer.status || "New") === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
+
+  const exportCSV = () => {
+    const headers = [
+      "Name",
+      "Phone",
+      "Email",
+      "Business",
+      "Service",
+      "Budget",
+      "Status",
+      "Notes",
+      "Created Date",
+    ];
+
+    const rows = filteredCustomers.map((item) => [
+      item.name || "",
+      item.phone || "",
+      item.email || "",
+      item.business || "",
+      item.service || "",
+      item.budget || "",
+      item.status || "New",
+      (item.notes || "").replaceAll(",", " "),
+      item.createdAt ? new Date(item.createdAt).toLocaleString() : "",
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.map((value) => `"${value}"`).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "novaedge-customers.csv";
+    link.click();
+  };
+
+  const totalCustomers = customers.length;
+  const newCustomers = customers.filter(
+    (item) => (item.status || "New") === "New"
+  ).length;
+  const activeProjects = customers.filter(
+    (item) => item.status === "In Progress"
+  ).length;
+  const completedCustomers = customers.filter(
+    (item) => item.status === "Completed"
+  ).length;
 
   return (
     <AdminLayout>
@@ -152,37 +209,78 @@ function Customers() {
           </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center gap-2 px-5 py-3 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
-        >
-          <Plus size={18} />
-          Add Customer
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={exportCSV}
+            className="flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-white/10 border border-white/10 text-white font-bold hover:bg-white/15 transition"
+          >
+            <Download size={18} />
+            Export CSV
+          </button>
+
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
+          >
+            <Plus size={18} />
+            Add Customer
+          </button>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-4 gap-4 mb-6">
+        {[
+          ["Total Customers", totalCustomers],
+          ["New Customers", newCustomers],
+          ["Active Projects", activeProjects],
+          ["Completed", completedCustomers],
+        ].map(([title, value]) => (
+          <div
+            key={title}
+            className="rounded-3xl border border-white/10 bg-white/[0.04] p-5"
+          >
+            <p className="text-white/45">{title}</p>
+            <p className="mt-2 text-3xl font-black text-cyan-300">{value}</p>
+          </div>
+        ))}
       </div>
 
       <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6">
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search customer..."
-            className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-          />
+          <div className="relative w-full">
+            <Search
+              size={18}
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-white/35"
+            />
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-          >
-            <option value="All">All Status</option>
-            <option value="New">New</option>
-            <option value="Contacted">Contacted</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name, email, phone, business..."
+              className="w-full pl-12 pr-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
+            />
+          </div>
+
+          <div className="relative min-w-[220px]">
+            <Filter
+              size={18}
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-white/35"
+            />
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full pl-12 pr-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
+            >
+              <option value="All">All Status</option>
+              <option value="New">New</option>
+              <option value="Contacted">Contacted</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -214,7 +312,7 @@ function Customers() {
                     </td>
 
                     <td className="py-4 px-4 text-white/60">
-                      {customer.business}
+                      {customer.business || "-"}
                     </td>
 
                     <td className="py-4 px-4 text-white/60">
@@ -246,11 +344,11 @@ function Customers() {
                     <td className="py-4 px-4">
                       <div className="flex gap-3">
                         <button
-  onClick={() => setSelectedCustomer(customer)}
-  className="text-cyan-300 hover:text-cyan-200"
->
-  <Eye size={18} />
-</button>
+                          onClick={() => setSelectedCustomer(customer)}
+                          className="text-cyan-300 hover:text-cyan-200"
+                        >
+                          <Eye size={18} />
+                        </button>
 
                         <button
                           onClick={() => openEditForm(customer)}
@@ -259,10 +357,11 @@ function Customers() {
                           <Pencil size={18} />
                         </button>
 
-                        <a href={`https://wa.me/${customer.phone?.replace( /\D/g,
-  ""
-)}?text=${encodeURIComponent(
-  `Hello ${customer.name},
+                        <a
+                          href={`https://wa.me/${customer.phone?.replace(
+                            /\D/g,
+                            ""
+                          )}?text=${encodeURIComponent(`Hello ${customer.name},
 
 Thank you for contacting NovaEdge Digital.
 
@@ -271,8 +370,7 @@ We received your request for ${customer.service}.
 Our team will contact you shortly.
 
 Regards,
-NovaEdge Digital`
-)}`}
+NovaEdge Digital`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-green-300 hover:text-green-200"
@@ -418,99 +516,83 @@ NovaEdge Digital`
       )}
 
       {selectedCustomer && (
-  <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] border border-white/10 bg-[#080808] p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-black">
-          Customer Details
-        </h2>
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] border border-white/10 bg-[#080808] p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-black">Customer Details</h2>
 
-        <button
-          onClick={() => setSelectedCustomer(null)}
-          className="text-white/50 hover:text-red-300 text-2xl"
-        >
-          ×
-        </button>
-      </div>
+              <button
+                onClick={() => setSelectedCustomer(null)}
+                className="text-white/50 hover:text-red-300 text-2xl"
+              >
+                ×
+              </button>
+            </div>
 
-      <div className="grid md:grid-cols-2 gap-5">
-        <div>
-          <p className="text-white/40 text-sm">Name</p>
-          <p className="mt-1 font-semibold">
-            {selectedCustomer.name}
-          </p>
+            <div className="grid md:grid-cols-2 gap-5">
+              <div>
+                <p className="text-white/40 text-sm">Name</p>
+                <p className="mt-1 font-semibold">{selectedCustomer.name}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Phone</p>
+                <p className="mt-1">{selectedCustomer.phone}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Email</p>
+                <p className="mt-1">{selectedCustomer.email || "-"}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Business</p>
+                <p className="mt-1">{selectedCustomer.business || "-"}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Service</p>
+                <p className="mt-1 text-cyan-300">
+                  {selectedCustomer.service}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Budget</p>
+                <p className="mt-1">{selectedCustomer.budget || "-"}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Status</p>
+                <p className="mt-1">{selectedCustomer.status || "New"}</p>
+              </div>
+
+              <div>
+                <p className="text-white/40 text-sm">Created Date</p>
+                <p className="mt-1">
+                  {selectedCustomer.createdAt
+                    ? new Date(selectedCustomer.createdAt).toLocaleString()
+                    : "-"}
+                </p>
+              </div>
+
+              <div className="md:col-span-2">
+                <p className="text-white/40 text-sm">Notes</p>
+                <p className="mt-2 leading-7 text-white/70">
+                  {selectedCustomer.notes || "No notes available"}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSelectedCustomer(null)}
+              className="mt-8 w-full py-4 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
+            >
+              Close
+            </button>
+          </div>
         </div>
-
-        <div>
-          <p className="text-white/40 text-sm">Phone</p>
-          <p className="mt-1">
-            {selectedCustomer.phone}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-white/40 text-sm">Email</p>
-          <p className="mt-1">
-            {selectedCustomer.email || "-"}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-white/40 text-sm">Business</p>
-          <p className="mt-1">
-            {selectedCustomer.business || "-"}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-white/40 text-sm">Service</p>
-          <p className="mt-1 text-cyan-300">
-            {selectedCustomer.service}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-white/40 text-sm">Budget</p>
-          <p className="mt-1">
-            {selectedCustomer.budget || "-"}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-white/40 text-sm">Status</p>
-          <p className="mt-1">
-            {selectedCustomer.status}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-white/40 text-sm">Created Date</p>
-          <p className="mt-1">
-            {selectedCustomer.createdAt
-              ? new Date(
-                  selectedCustomer.createdAt
-                ).toLocaleString()
-              : "-"}
-          </p>
-        </div>
-
-        <div className="md:col-span-2">
-          <p className="text-white/40 text-sm">Notes</p>
-          <p className="mt-2 leading-7 text-white/70">
-            {selectedCustomer.notes || "No notes available"}
-          </p>
-        </div>
-      </div>
-
-      <button
-        onClick={() => setSelectedCustomer(null)}
-        className="mt-8 w-full py-4 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
+      )}
     </AdminLayout>
   );
 }
