@@ -9,6 +9,17 @@ import {
   Layers,
   Image,
 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 function AdminDashboard() {
   const [inquiries, setInquiries] = useState([]);
@@ -47,9 +58,10 @@ function AdminDashboard() {
     (item) => item.status === "Converted"
   ).length;
 
-  const closed = inquiries.filter(
-    (item) => item.status === "Closed"
-  ).length;
+  const closed = inquiries.filter((item) => item.status === "Closed").length;
+
+  const conversionRate =
+    inquiries.length > 0 ? ((converted / inquiries.length) * 100).toFixed(1) : 0;
 
   const stats = [
     { title: "Total Customers", value: customers.length, icon: Users },
@@ -59,6 +71,23 @@ function AdminDashboard() {
     { title: "Total Services", value: services.length, icon: Layers },
     { title: "Portfolio Projects", value: portfolio.length, icon: Image },
   ];
+
+  const monthlyData = [
+    { month: "Jan", inquiries: 0, customers: 0 },
+    { month: "Feb", inquiries: 0, customers: 0 },
+    { month: "Mar", inquiries: 0, customers: 0 },
+    { month: "Apr", inquiries: 0, customers: 0 },
+    { month: "May", inquiries: inquiries.length, customers: customers.length },
+    { month: "Jun", inquiries: 0, customers: 0 },
+  ];
+
+  const statusData = [
+    { name: "New", value: newInquiries },
+    { name: "Converted", value: converted },
+    { name: "Closed", value: closed },
+  ];
+
+  const COLORS = ["#67e8f9", "#22c55e", "#f97316"];
 
   return (
     <AdminLayout>
@@ -90,6 +119,87 @@ function AdminDashboard() {
             </div>
           );
         })}
+      </div>
+
+      <div className="grid xl:grid-cols-3 gap-6 mt-8">
+        <div className="xl:col-span-2 rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6">
+          <h2 className="text-2xl font-bold mb-2">Business Growth</h2>
+          <p className="text-white/45 mb-6">
+            Monthly inquiries and customer growth overview.
+          </p>
+
+          <div className="h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={monthlyData}>
+                <XAxis dataKey="month" stroke="#ffffff60" />
+                <YAxis stroke="#ffffff60" />
+                <Tooltip
+                  contentStyle={{
+                    background: "#0b0b0b",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "16px",
+                    color: "#fff",
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="inquiries"
+                  stroke="#67e8f9"
+                  fill="#67e8f933"
+                  strokeWidth={3}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="customers"
+                  stroke="#22c55e"
+                  fill="#22c55e33"
+                  strokeWidth={3}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6">
+          <h2 className="text-2xl font-bold mb-2">Lead Status</h2>
+          <p className="text-white/45 mb-6">
+            Current inquiry status breakdown.
+          </p>
+
+          <div className="h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={statusData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={65}
+                  outerRadius={100}
+                  paddingAngle={4}
+                >
+                  {statusData.map((entry, index) => (
+                    <Cell key={entry.name} fill={COLORS[index]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    background: "#0b0b0b",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "16px",
+                    color: "#fff",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="mt-4 rounded-2xl bg-cyan-300/10 border border-cyan-300/20 p-4">
+            <p className="text-white/50">Conversion Rate</p>
+            <p className="text-3xl font-black text-cyan-300">
+              {conversionRate}%
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="grid xl:grid-cols-2 gap-6 mt-8">
