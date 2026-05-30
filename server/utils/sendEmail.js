@@ -5,6 +5,11 @@ const sendEmail = async ({ to, subject, html }) => {
       return false;
     }
 
+    if (!to) {
+      console.error("Email receiver is missing");
+      return false;
+    }
+
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
