@@ -1,33 +1,34 @@
-const brevo = require("@getbrevo/brevo");
+const SibApiV3Sdk = require("@getbrevo/brevo");
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    if (!process.env.BREVO_API_KEY) {
-      console.error("BREVO_API_KEY is missing");
-      return false;
-    }
-
-    const apiInstance = new brevo.TransactionalEmailsApi();
+    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
     apiInstance.setApiKey(
-      brevo.TransactionalEmailsApiApiKeys.apiKey,
+      SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey,
       process.env.BREVO_API_KEY
     );
 
-    const result = await apiInstance.sendTransacEmail({
+    const sendSmtpEmail = {
       sender: {
-        email: "hello.novaedgedigital@gmail.com",
         name: "NovaEdge Digital",
+        email: "hello.novaedgedigital@gmail.com",
       },
-      to: [{ email: to }],
+      to: [
+        {
+          email: to,
+        },
+      ],
       subject: subject,
       htmlContent: html,
-    });
+    };
 
-    console.log("Email sent successfully:", result?.body?.messageId);
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
+
+    console.log("Email sent successfully");
     return true;
   } catch (error) {
-    console.error("Brevo Email Error:", error?.response?.body || error.message);
+    console.error("Brevo Email Error:", error);
     return false;
   }
 };
