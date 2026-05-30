@@ -6,19 +6,24 @@ const createInquiry = async (req, res) => {
   try {
     const inquiry = await Inquiry.create(req.body);
 
+    const adminEmail =
+      process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL;
+
     await Promise.all([
-      sendEmail({
-        to: process.env.ADMIN_NOTIFY_EMAIL,
-        subject: "New Inquiry - NovaEdge Digital",
-        html: `
-          <h2>New Inquiry Received</h2>
-          <p><strong>Name:</strong> ${inquiry.name}</p>
-          <p><strong>Email:</strong> ${inquiry.email}</p>
-          <p><strong>Phone:</strong> ${inquiry.phone}</p>
-          <p><strong>Service:</strong> ${inquiry.service}</p>
-          <p><strong>Message:</strong> ${inquiry.message}</p>
-        `,
-      }),
+      adminEmail
+        ? sendEmail({
+            to: adminEmail,
+            subject: "New Inquiry - NovaEdge Digital",
+            html: `
+              <h2>New Inquiry Received</h2>
+              <p><strong>Name:</strong> ${inquiry.name}</p>
+              <p><strong>Email:</strong> ${inquiry.email}</p>
+              <p><strong>Phone:</strong> ${inquiry.phone}</p>
+              <p><strong>Service:</strong> ${inquiry.service}</p>
+              <p><strong>Message:</strong> ${inquiry.message}</p>
+            `,
+          })
+        : Promise.resolve(),
 
       inquiry.email
         ? sendEmail({
