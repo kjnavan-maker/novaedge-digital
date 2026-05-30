@@ -19,9 +19,9 @@ const sendEmail = async ({ to, subject, html }) => {
       },
       body: JSON.stringify({
         sender: {
-          name: "NovaEdge Digital",
-          email: "kjnavan@gmail.com",
-        },
+  name: "NovaEdge Digital",
+  email: "hello.novaedgedigital@gmail.com",
+},
         to: [{ email: to }],
         subject,
         htmlContent: html,
