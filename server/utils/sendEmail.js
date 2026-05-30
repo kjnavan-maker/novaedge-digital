@@ -1,28 +1,39 @@
-const brevo = require("@getbrevo/brevo");
-
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    const apiInstance = new brevo.TransactionalEmailsApi();
+    if (!process.env.BREVO_API_KEY) {
+      console.error("BREVO_API_KEY is missing");
+      return false;
+    }
 
-    apiInstance.setApiKey(
-      brevo.TransactionalEmailsApiApiKeys.apiKey,
-      process.env.BREVO_API_KEY
-    );
-
-    await apiInstance.sendTransacEmail({
-      sender: {
-        name: "NovaEdge Digital",
-        email: "hello.novaedgedigital@gmail.com",
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+        "content-type": "application/json",
       },
-      to: [{ email: to }],
-      subject,
-      htmlContent: html,
+      body: JSON.stringify({
+        sender: {
+          name: "NovaEdge Digital",
+          email: "hello.novaedgedigital@gmail.com",
+        },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
     });
 
-    console.log("Email sent successfully");
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Brevo Email Error:", data);
+      return false;
+    }
+
+    console.log("Email sent successfully:", data);
     return true;
   } catch (error) {
-    console.error("Brevo Email Error:", error);
+    console.error("Email Error:", error.message);
     return false;
   }
 };
