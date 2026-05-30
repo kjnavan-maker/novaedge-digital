@@ -1,35 +1,33 @@
-const nodemailer = require("nodemailer");
+const brevo = require("@getbrevo/brevo");
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
+    if (!process.env.BREVO_API_KEY) {
+      console.error("BREVO_API_KEY is missing");
+      return false;
+    }
 
-    console.log("MAIL_HOST =", process.env.MAIL_HOST);
-    console.log("MAIL_PORT =", process.env.MAIL_PORT);
-    console.log("MAIL_USER =", process.env.MAIL_USER);
+    const apiInstance = new brevo.TransactionalEmailsApi();
 
-    const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: Number(process.env.MAIL_PORT),
-  secure: false,
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-});
+    apiInstance.setApiKey(
+      brevo.TransactionalEmailsApiApiKeys.apiKey,
+      process.env.BREVO_API_KEY
+    );
 
-    const info = await transporter.sendMail({
-      from: `"NovaEdge Digital" <${process.env.MAIL_USER}>`,
-      to,
-      subject,
-      html,
+    const result = await apiInstance.sendTransacEmail({
+      sender: {
+        email: "hello.novaedgedigital@gmail.com",
+        name: "NovaEdge Digital",
+      },
+      to: [{ email: to }],
+      subject: subject,
+      htmlContent: html,
     });
 
-    console.log("Email sent:", info.messageId);
-
+    console.log("Email sent successfully:", result?.body?.messageId);
     return true;
-
   } catch (error) {
-    console.error("Email Error:", error);
+    console.error("Brevo Email Error:", error?.response?.body || error.message);
     return false;
   }
 };
