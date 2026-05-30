@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import api from "../../utils/api";
 import AdminLayout from "../layouts/AdminLayout";
-import { Eye, Trash2, MessageCircle, UserPlus } from "lucide-react";
+import {
+  Eye,
+  Trash2,
+  MessageCircle,
+  UserPlus,
+  Download,
+  Search,
+  Filter,
+} from "lucide-react";
 
 function Inquiries() {
   const [inquiries, setInquiries] = useState([]);
@@ -12,7 +20,7 @@ function Inquiries() {
   const fetchInquiries = async () => {
     try {
       const response = await api.get("/inquiries");
-      setInquiries(response.data.data);
+      setInquiries(response.data.data || []);
     } catch (error) {
       console.error(error);
       alert("Failed to load inquiries");
@@ -68,6 +76,42 @@ function Inquiries() {
     }
   };
 
+  const exportCSV = () => {
+    const headers = [
+      "Name",
+      "Email",
+      "Phone",
+      "Service",
+      "Status",
+      "Message",
+      "Created Date",
+    ];
+
+    const rows = filteredInquiries.map((item) => [
+      item.name || "",
+      item.email || "",
+      item.phone || "",
+      item.service || "",
+      item.status || "New",
+      (item.message || "").replaceAll(",", " "),
+      item.createdAt ? new Date(item.createdAt).toLocaleString() : "",
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.map((value) => `"${value}"`).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "novaedge-inquiries.csv";
+    link.click();
+  };
+
   const filteredInquiries = inquiries.filter((item) => {
     const search = searchTerm.toLowerCase();
 
@@ -79,10 +123,15 @@ function Inquiries() {
       item.message?.toLowerCase().includes(search);
 
     const matchesStatus =
-      statusFilter === "All" || item.status === statusFilter;
+      statusFilter === "All" || (item.status || "New") === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
+
+  const totalInquiries = inquiries.length;
+  const newCount = inquiries.filter((item) => (item.status || "New") === "New").length;
+  const convertedCount = inquiries.filter((item) => item.status === "Converted").length;
+  const closedCount = inquiries.filter((item) => item.status === "Closed").length;
 
   return (
     <AdminLayout>
@@ -93,29 +142,66 @@ function Inquiries() {
             Manage website contact form submissions.
           </p>
         </div>
+
+        <button
+          onClick={exportCSV}
+          className="flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-cyan-300 text-black font-bold hover:bg-cyan-200 transition"
+        >
+          <Download size={18} />
+          Export CSV
+        </button>
+      </div>
+
+      <div className="grid md:grid-cols-4 gap-4 mb-6">
+        {[
+          ["Total", totalInquiries],
+          ["New", newCount],
+          ["Converted", convertedCount],
+          ["Closed", closedCount],
+        ].map(([title, value]) => (
+          <div
+            key={title}
+            className="rounded-3xl border border-white/10 bg-white/[0.04] p-5"
+          >
+            <p className="text-white/45">{title}</p>
+            <p className="mt-2 text-3xl font-black text-cyan-300">{value}</p>
+          </div>
+        ))}
       </div>
 
       <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6">
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search inquiry..."
-            className="w-full px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-          />
+          <div className="relative w-full">
+            <Search
+              size={18}
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-white/35"
+            />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name, email, phone, service..."
+              className="w-full pl-12 pr-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
+            />
+          </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
-          >
-            <option value="All">All Status</option>
-            <option value="New">New</option>
-            <option value="Replied">Replied</option>
-            <option value="Converted">Converted</option>
-            <option value="Closed">Closed</option>
-          </select>
+          <div className="relative min-w-[220px]">
+            <Filter
+              size={18}
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-white/35"
+            />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full pl-12 pr-5 py-4 rounded-2xl bg-black/40 border border-white/10 outline-none focus:border-cyan-300 text-white"
+            >
+              <option value="All">All Status</option>
+              <option value="New">New</option>
+              <option value="Replied">Replied</option>
+              <option value="Converted">Converted</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
         </div>
 
         {filteredInquiries.length === 0 ? (
@@ -125,7 +211,7 @@ function Inquiries() {
             {filteredInquiries.map((item) => (
               <div
                 key={item._id}
-                className="rounded-3xl border border-white/10 bg-black/30 p-6"
+                className="rounded-3xl border border-white/10 bg-black/30 p-6 hover:border-cyan-300/30 transition"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -150,7 +236,7 @@ function Inquiries() {
 
                 <div className="mt-5">
                   <p className="text-cyan-300 font-semibold">{item.service}</p>
-                  <p className="mt-3 text-white/60 leading-7">
+                  <p className="mt-3 text-white/60 leading-7 line-clamp-3">
                     {item.message}
                   </p>
                 </div>
@@ -180,10 +266,9 @@ function Inquiries() {
 
                   <a
                     href={`https://wa.me/${item.phone?.replace(
-  /\D/g,
-  ""
-)}?text=${encodeURIComponent(
-  `Hello ${item.name},
+                      /\D/g,
+                      ""
+                    )}?text=${encodeURIComponent(`Hello ${item.name},
 
 Thank you for contacting NovaEdge Digital.
 
@@ -192,8 +277,7 @@ We received your inquiry regarding ${item.service}.
 Our team will contact you shortly.
 
 Regards,
-NovaEdge Digital`
-)}`}
+NovaEdge Digital`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-green-300"
@@ -248,7 +332,9 @@ NovaEdge Digital`
 
               <div>
                 <p className="text-white/40 text-sm">Service</p>
-                <p className="mt-1 text-cyan-300">{selectedInquiry.service}</p>
+                <p className="mt-1 text-cyan-300">
+                  {selectedInquiry.service}
+                </p>
               </div>
 
               <div>
